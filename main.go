@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/ivankuchin/timecard.ru-api/config_reader"
+	"github.com/ivankuchin/timecard.ru-api/server"
 )
 
 func main() {
@@ -13,5 +13,8 @@ func main() {
 		log.Panic(err.Error())
 	}
 
-	fmt.Println(config)
+	server.SetConfig(*config)
+	server.Run()
+
+	log.Println("exit from program")
 }
