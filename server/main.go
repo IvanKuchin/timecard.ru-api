@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,12 +11,12 @@ import (
 
 	"github.com/gorilla/mux"
 	apihandlers "github.com/ivankuchin/timecard.ru-api/api-handlers"
-	"github.com/ivankuchin/timecard.ru-api/config_reader"
+	configreader "github.com/ivankuchin/timecard.ru-api/config-reader"
 )
 
-var cfg config_reader.Config
+var cfg configreader.Config
 
-func SetConfig(c config_reader.Config) {
+func SetConfig(c configreader.Config) {
 	cfg = c
 }
 
@@ -28,18 +27,14 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func UserHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "hello back\n")
-}
-
 func Run() {
 	r := mux.NewRouter()
 	r.Use(loggingMiddleware)
-	r.HandleFunc("/api/v1/user", UserHandler)
+	r.HandleFunc("/api/v1/login", apihandlers.LoginHandler).Methods(http.MethodPost)
 	r.HandleFunc("/", apihandlers.DefaultHandler)
 
 	srv := &http.Server{
-		Addr:         "127.0.0.1:" + strconv.Itoa(cfg.Listenport),
+		Addr:         "0.0.0.0:" + strconv.Itoa(cfg.Listenport),
 		WriteTimeout: time.Second * 5,
 		ReadTimeout:  time.Second * 5,
 		IdleTimeout:  time.Second * 5,

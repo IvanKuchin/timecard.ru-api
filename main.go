@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/ivankuchin/timecard.ru-api/config_reader"
+	configreader "github.com/ivankuchin/timecard.ru-api/config-reader"
 	"github.com/ivankuchin/timecard.ru-api/server"
 )
 
 func main() {
-	config, err := config_reader.Read()
+	config, err := configreader.Read()
 	if err != nil {
 		log.Panic(err.Error())
 	}
