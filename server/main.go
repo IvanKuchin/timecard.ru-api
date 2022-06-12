@@ -28,6 +28,8 @@ func loggingMiddleware(next http.Handler) http.Handler {
 }
 
 func Run() {
+	apihandlers.SetConfig(cfg)
+
 	r := mux.NewRouter()
 	r.Use(loggingMiddleware)
 	r.HandleFunc("/api/v1/login", apihandlers.LoginHandler).Methods(http.MethodPost)
