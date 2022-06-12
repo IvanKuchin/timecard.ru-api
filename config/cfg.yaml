@@ -1,3 +1,4 @@
 listenport: 8881
+serverproto: "http"
 serverhost: "dev.timecard.ru"
 serverport: 80

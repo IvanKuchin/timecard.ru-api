@@ -51,7 +51,7 @@ func convertRequest(body []byte) (string, error) {
 }
 
 func sendReqToServer(url string) ([]byte, error) {
-	location := "http://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/index.cgi?action=AJAX_loginUser&" + url
+	location := config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/index.cgi?action=AJAX_loginUser&" + url
 	buf := new(bytes.Buffer)
 
 	log.Printf("%q\n", location)
