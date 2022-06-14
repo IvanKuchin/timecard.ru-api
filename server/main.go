@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,23 +11,34 @@ import (
 	"github.com/gorilla/mux"
 	apihandlers "github.com/ivankuchin/timecard.ru-api/api-handlers"
 	configreader "github.com/ivankuchin/timecard.ru-api/config-reader"
+	"go.uber.org/zap"
 )
 
 var cfg configreader.Config
+var logger *zap.SugaredLogger
 
 func SetConfig(c configreader.Config) {
 	cfg = c
 }
 
+func createLogger() {
+	l, _ := zap.NewDevelopment()
+	logger = l.Sugar()
+}
+
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("HTTP request: %v\n", r.RequestURI)
+		logger.Debugw("HTTP request: " + r.RequestURI)
 		next.ServeHTTP(w, r)
 	})
 }
 
 func Run() {
 	apihandlers.SetConfig(cfg)
+
+	createLogger()
+	defer logger.Sync()
+	apihandlers.SetLogger(logger)
 
 	r := mux.NewRouter()
 	r.Use(loggingMiddleware)
@@ -47,10 +57,10 @@ func Run() {
 
 	// Run our server in a goroutine so that it doesn't block.
 	go func(c chan os.Signal) {
-		log.Printf("listening on %s\n", srv.Addr)
+		logger.Infof("listening on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil {
-			log.Printf("ERROR: %s\n", err)
-			c <- os.Interrupt
+			logger.Info(err)
+			// c <- os.Interrupt
 		}
 	}(c)
 
@@ -69,5 +79,5 @@ func Run() {
 	// until the timeout deadline.
 	srv.Shutdown(ctx)
 
-	log.Println("shutthing down the server")
+	logger.Debug("shutthing down the server")
 }
