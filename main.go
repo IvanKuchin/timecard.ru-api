@@ -21,6 +21,4 @@ func main() {
 
 	server.SetConfig(*config)
 	server.Run()
-
-	log.Println("exit from program")
 }
