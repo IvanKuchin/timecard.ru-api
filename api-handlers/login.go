@@ -6,17 +6,18 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/ivankuchin/timecard.ru-api/logs"
 )
 
 func readFromClient(tID string, r *http.Request) ([]byte, error) {
 	body, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		logger.Errorw(err.Error(),
+		logs.Sugar.Errorw(err.Error(),
 			"transactionID", tID,
 		)
 		return []byte{}, err
@@ -24,16 +25,16 @@ func readFromClient(tID string, r *http.Request) ([]byte, error) {
 
 	if len(body) == 0 {
 		error_message := "not enough parameters\n"
-		logger.Errorw(error_message,
+		logs.Sugar.Errorw(error_message,
 			"transactionID", tID,
 		)
 		return []byte{}, fmt.Errorf("%s", error_message)
 	}
 
-	logger.Debugw("request url: "+r.RequestURI,
+	logs.Sugar.Debugw("request url: "+r.RequestURI,
 		"transactionID", tID,
 	)
-	logger.Debugw("request body: "+string(body),
+	logs.Sugar.Debugw("request body: "+string(body),
 		"transactionID", tID,
 	)
 
@@ -50,7 +51,9 @@ func convertRequest(tID string, body []byte) (string, error) {
 	err := json.Unmarshal(body, &user)
 	if err != nil {
 		error_message := "incorrect json format"
-		log.Printf("(tID: %s): ERROR: %s (unmarshal error: %v) (tried to parse: %s)\n", tID, error_message, err, body)
+		logs.Sugar.Errorw(error_message+" (unmarshal error: "+err.Error()+")",
+			"transactionID", tID,
+		)
 		return "", fmt.Errorf("%s", error_message)
 	}
 
@@ -62,7 +65,9 @@ func sendReqToServer(tID string, url string) ([]byte, error) {
 
 	req, err := http.NewRequest(http.MethodGet, url, buf)
 	if err != nil {
-		log.Printf("(tID: %s): ERROR: %v\n", tID, err)
+		logs.Sugar.Errorw(err.Error(),
+			"transactionID", tID,
+		)
 		return []byte{}, fmt.Errorf("incorrect http request")
 	}
 	req.AddCookie(&http.Cookie{Name: "lng", Value: "us"})
@@ -77,21 +82,27 @@ func sendReqToServer(tID string, url string) ([]byte, error) {
 
 	resp, err := c.Do(req)
 	if err != nil {
-		log.Printf("(tID: %s): ERROR: %v\n", tID, err)
+		logs.Sugar.Errorw(err.Error(),
+			"transactionID", tID,
+		)
 		return []byte{}, fmt.Errorf("error returned by server")
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		error_message := fmt.Sprintf("server reply http.code %d\n", resp.StatusCode)
-		log.Printf("(tID: %s) %s\n", tID, error_message)
+		error_message := fmt.Sprintf("server reply http.code %d", resp.StatusCode)
+		logs.Sugar.Errorw(error_message,
+			"transactionID", tID,
+		)
 		return []byte{}, fmt.Errorf("%s", error_message)
 	}
 
 	text, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("(tID: %s): ERROR: %v\n", tID, err)
+		logs.Sugar.Errorw(err.Error(),
+			"transactionID", tID,
+		)
 		return []byte{}, fmt.Errorf("can't read from server")
 	}
 
@@ -104,12 +115,16 @@ func parseServerResponse(tID string, sr []byte) (string, error) {
 	err := json.Unmarshal(sr, &server_response)
 	if err != nil {
 		error_message := "incorrect json format"
-		log.Printf("(tID: %s): ERROR: %s (unmarshal error: %v) (tried to parse: %s)\n", tID, error_message, err, string(sr))
+		logs.Sugar.Errorw(error_message+" (unmarshal error: "+err.Error()+")",
+			"transactionID", tID,
+		)
 		return "", fmt.Errorf("%s", error_message)
 	}
 
 	if server_response.Result == "error" {
-		log.Printf("(tID: %s): ERROR: %s\n", tID, server_response.Description)
+		logs.Sugar.Debugw("server returned error: "+server_response.Description,
+			"transactionID", tID,
+		)
 		return "", fmt.Errorf("%s", server_response.Description)
 	}
 

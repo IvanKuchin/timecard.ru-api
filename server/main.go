@@ -11,34 +11,24 @@ import (
 	"github.com/gorilla/mux"
 	apihandlers "github.com/ivankuchin/timecard.ru-api/api-handlers"
 	configreader "github.com/ivankuchin/timecard.ru-api/config-reader"
-	"go.uber.org/zap"
+	"github.com/ivankuchin/timecard.ru-api/logs"
 )
 
 var cfg configreader.Config
-var logger *zap.SugaredLogger
 
 func SetConfig(c configreader.Config) {
 	cfg = c
 }
 
-func createLogger() {
-	l, _ := zap.NewDevelopment()
-	logger = l.Sugar()
-}
-
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger.Debugw("HTTP request: " + r.RequestURI)
+		logs.Sugar.Debugw("HTTP request: " + r.RequestURI)
 		next.ServeHTTP(w, r)
 	})
 }
 
 func Run() {
 	apihandlers.SetConfig(cfg)
-
-	createLogger()
-	defer logger.Sync()
-	apihandlers.SetLogger(logger)
 
 	r := mux.NewRouter()
 	r.Use(loggingMiddleware)
@@ -57,10 +47,10 @@ func Run() {
 
 	// Run our server in a goroutine so that it doesn't block.
 	go func(c chan os.Signal) {
-		logger.Infof("listening on %s", srv.Addr)
+		logs.Sugar.Debugf("listening on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil {
-			logger.Info(err)
-			// c <- os.Interrupt
+			logs.Sugar.Info(err)
+			c <- os.Interrupt
 		}
 	}(c)
 
@@ -79,5 +69,5 @@ func Run() {
 	// until the timeout deadline.
 	srv.Shutdown(ctx)
 
-	logger.Debug("shutthing down the server")
+	logs.Sugar.Debug("shutthing down http-server")
 }
