@@ -33,6 +33,8 @@ func Run() {
 	r := mux.NewRouter()
 	r.Use(loggingMiddleware)
 	r.HandleFunc("/api/v1/login", apihandlers.LoginHandler).Methods(http.MethodPost)
+	r.HandleFunc("/api/v1/agency/sow/", apihandlers.AgencySowListHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/v1/agency/sow/{key}", apihandlers.AgencySowListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/", apihandlers.DefaultHandler)
 
 	srv := &http.Server{
