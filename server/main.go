@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 	apihandlers "github.com/ivankuchin/timecard.ru-api/api-handlers"
 	configreader "github.com/ivankuchin/timecard.ru-api/config-reader"
@@ -36,6 +37,11 @@ func Run() {
 	r.HandleFunc("/api/v1/agency/sow/", apihandlers.AgencySowListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/api/v1/agency/sow/{key}", apihandlers.AgencySowListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/", apihandlers.DefaultHandler)
+
+	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
+	sh := middleware.SwaggerUI(opts, nil)
+	r.Handle("/docs", sh)
+	r.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	srv := &http.Server{
 		Addr:         "0.0.0.0:" + strconv.Itoa(cfg.Listenport),

@@ -12,10 +12,20 @@
 //  Produces:
 //  - application/json
 //
+// Security:
+// - api_key:
+//
+// SecurityDefinitions:
+// api_key:
+//      type: apiKey
+//      name: Authorization
+//      in: header
+//
 // swagger:meta
 package apihandlers
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -41,6 +51,49 @@ func getBearerToken(tID string, r *http.Request) (string, error) {
 	return token, nil
 }
 
+func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
+
+	var server_response sowContent
+	err := json.Unmarshal(sr, &server_response)
+	if err != nil {
+		error_message := "incorrect json format"
+		logs.Sugar.Errorw(error_message+" (unmarshal error: "+err.Error()+")",
+			"traceID", tID,
+		)
+		return nil, fmt.Errorf("%s", error_message)
+	}
+
+	if len(server_response.Sow) == 0 {
+		logs.Sugar.Debugw(ErrorNotFound.Error(),
+			"traceID", tID,
+		)
+		return nil, ErrorNotFound
+	}
+
+	serialized, err := json.Marshal(server_response)
+	if err != nil {
+		error_message := "json marshaling error"
+		logs.Sugar.Errorw(error_message+" (marshal error: "+err.Error()+")",
+			"traceID", tID,
+		)
+		return nil, fmt.Errorf("%s", error_message)
+	}
+
+	return &serialized, nil
+}
+
+// swagger:route GET /api/v1/agency/sow/{id} Sow idParam
+// Return array of StatementOfWorks with subcontractors
+//
+// Schemes: http, https
+//
+// Security:
+//   api_key
+//
+// responses:
+// 200: sowList
+// 404: notFoundWrapper
+// 400: badRequestWrapper
 func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
 	tID := generateTraceID()
 
@@ -83,5 +136,20 @@ func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%s", server_response)
+	responseToClient, err := sow_parseServerResponse(tID, server_response)
+	if err != nil {
+		if (err.Error() == "user not found") || (err.Error() == "You are not authorized") {
+			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprintf(w, "%v", err)
+		} else if errors.Is(err, ErrorNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprintf(w, "%v", err)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "%v", err)
+		}
+		return
+	}
+
+	fmt.Fprintf(w, "%s", responseToClient)
 }
