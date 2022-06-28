@@ -57,7 +57,7 @@ type timecard struct {
 	// in: body
 	//
 	// required: true
-	// Contract_sow []sow
+	Contract_sow []sow
 
 	// SoW ID
 	// in: body
