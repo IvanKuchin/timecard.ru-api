@@ -35,9 +35,9 @@ import (
 	"github.com/ivankuchin/timecard.ru-api/logs"
 )
 
-func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
+func timecard_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 
-	var server_response sowServerResponse
+	var server_response timecardServerResponse
 	err := json.Unmarshal(sr, &server_response)
 	if err != nil {
 		error_message := "incorrect json format"
@@ -47,7 +47,7 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 		return nil, fmt.Errorf("%s", error_message)
 	}
 
-	if len(server_response.Sow) == 0 {
+	if len(server_response.Timecards) == 0 {
 		logs.Sugar.Debugw(ErrorNotFound.Error(),
 			"traceID", tID,
 		)
@@ -66,8 +66,8 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 	return &serialized, nil
 }
 
-// swagger:route GET /api/v1/agency/sow/ Sow noContentWrapper
-// Return array of StatementOfWorks with subcontractors
+// swagger:route GET /api/v1/agency/timecard/ Timecard noContentWrapper
+// Return array of Timcards reported to agency
 //
 // Schemes: http, https
 //
@@ -75,12 +75,12 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 //   api_key
 //
 // responses:
-// 200: sowServerResponseWrapper
+// 200: timecardServerResponseWrapper
 // 404: notFoundWrapper
 // 400: badRequestWrapper
 
-// swagger:route GET /api/v1/agency/sow/{id} Sow idParamSoW
-// Return subcontractor StatementOfWork with id
+// swagger:route GET /api/v1/agency/timecard/{id} Timecard idParamTimecard
+// Return timecard with id
 //
 // Schemes: http, https
 //
@@ -88,10 +88,10 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 //   api_key
 //
 // responses:
-// 200: sowServerResponseWrapper
+// 200: timecardServerResponseWrapper
 // 404: notFoundWrapper
 // 400: badRequestWrapper
-func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
+func AgencyTimecardListHandler(w http.ResponseWriter, r *http.Request) {
 	tID := generateTraceID()
 
 	sessid, err := getBearerToken(tID, r)
@@ -106,12 +106,14 @@ func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/agency.cgi?action=AJAX_getSoWList&include_bt=true&include_tasks=true"
+	url := ""
 
 	vars := mux.Vars(r)
 	key, exists := vars["key"]
 	if exists {
-		url += "&sow_id=" + key
+		url = config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/agency.cgi?action=AJAX_getTimecardEntry&timecard_id=" + key
+	} else {
+		url = config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/agency.cgi?action=AJAX_getTimecardList"
 	}
 
 	server_response, err := sendReqToServer(tID, url, sessid)
@@ -133,7 +135,7 @@ func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseToClient, err := sow_parseServerResponse(tID, server_response)
+	responseToClient, err := timecard_parseServerResponse(tID, server_response)
 	if err != nil {
 		if (err.Error() == "user not found") || (err.Error() == "You are not authorized") {
 			w.WriteHeader(http.StatusUnauthorized)

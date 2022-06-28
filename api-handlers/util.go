@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	configreader "github.com/ivankuchin/timecard.ru-api/config-reader"
@@ -138,4 +139,19 @@ func parseServerResponse(tID string, sr []byte) error {
 	}
 
 	return nil
+}
+
+func getBearerToken(tID string, r *http.Request) (string, error) {
+	header_auth := r.Header.Get("Authorization")
+	splitToken := strings.Split(header_auth, "Bearer ")
+
+	if len(splitToken) == 1 {
+		logs.Sugar.Errorw(ErrorNoBearerToken.Error(),
+			"traceID", tID,
+		)
+		return "", ErrorNoBearerToken
+	}
+	token := splitToken[1]
+
+	return token, nil
 }
