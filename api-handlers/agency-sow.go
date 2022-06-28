@@ -53,7 +53,7 @@ func getBearerToken(tID string, r *http.Request) (string, error) {
 
 func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 
-	var server_response sowContent
+	var server_response sowServerResponse
 	err := json.Unmarshal(sr, &server_response)
 	if err != nil {
 		error_message := "incorrect json format"
@@ -82,7 +82,7 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 	return &serialized, nil
 }
 
-// swagger:route GET /api/v1/agency/sow/{id} Sow idParam
+// swagger:route GET /api/v1/agency/sow/ Sow noContentWrapper
 // Return array of StatementOfWorks with subcontractors
 //
 // Schemes: http, https
@@ -91,7 +91,20 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 //   api_key
 //
 // responses:
-// 200: sowList
+// 200: sowServerResponseWrapper
+// 404: notFoundWrapper
+// 400: badRequestWrapper
+
+// swagger:route GET /api/v1/agency/sow/{id} Sow idParam
+// Return subcontractor StatementOfWork with id
+//
+// Schemes: http, https
+//
+// Security:
+//   api_key
+//
+// responses:
+// 200: sowServerResponseWrapper
 // 404: notFoundWrapper
 // 400: badRequestWrapper
 func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
@@ -151,5 +164,5 @@ func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%s", responseToClient)
+	fmt.Fprintf(w, "%s", *responseToClient)
 }
