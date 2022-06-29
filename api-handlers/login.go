@@ -25,7 +25,7 @@ import (
 )
 
 func login_getHTTPPayload(u login_user) string {
-	return "login=" + u.Login + "&password=" + u.Password
+	return "login=" + u.Login + "&password=" + u.Password_hash
 }
 
 func login_convertRequest(tID string, body []byte) (string, error) {

@@ -15,31 +15,6 @@
 // swagger:meta
 package apihandlers
 
-type login_user struct {
-	// User login
-	// in: body
-	// required: true
-	// type: string
-	Login string
-	// User password
-	// in: body
-	// required: true
-	// type: string
-	Password string
-}
-
-// swagger:parameters loginID
-type login_user_wrapper struct {
-	// in: body
-	Body login_user
-}
-
-type login_response struct {
-	Result      string
-	Description string
-	Sessid      string
-}
-
 // Company structure
 //
 // swagger:model bank
@@ -308,8 +283,8 @@ type company struct {
 
 // Document that must be submitted to prove expense relevancy
 //
-// swagger:model line_template
-type line_template struct {
+// swagger:model expense_template
+type expense_template struct {
 	// template ID
 	// in: body
 	//
@@ -388,7 +363,7 @@ type bt_expense_template struct {
 	// in: body
 	//
 	// required: true
-	Line_templates []line_template
+	Line_templates []expense_template
 }
 
 // Company occupation

@@ -35,9 +35,9 @@ import (
 	"github.com/ivankuchin/timecard.ru-api/logs"
 )
 
-func timecard_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
+func bt_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 
-	var server_response timecardServerResponse
+	var server_response btServerResponse
 	err := json.Unmarshal(sr, &server_response)
 	if err != nil {
 		error_message := "incorrect json format"
@@ -47,7 +47,7 @@ func timecard_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 		return nil, fmt.Errorf("%s", error_message)
 	}
 
-	if len(server_response.Timecards) == 0 {
+	if len(server_response.Bt) == 0 {
 		logs.Sugar.Debugw(ErrorNotFound.Error(),
 			"traceID", tID,
 		)
@@ -66,7 +66,7 @@ func timecard_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 	return &serialized, nil
 }
 
-// swagger:route GET /api/v1/agency/timecard/ Timecards noContentWrapper
+// swagger:route GET /api/v1/agency/bt/ BusinessTrips noContentWrapper
 // Return array of Timcards reported to agency
 //
 // Schemes: http, https
@@ -75,12 +75,12 @@ func timecard_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 //   api_key
 //
 // responses:
-// 200: timecardServerResponseWrapper
+// 200: btServerResponseWrapper
 // 404: notFoundWrapper
 // 400: badRequestWrapper
 
-// swagger:route GET /api/v1/agency/timecard/{id} Timecards idParamTimecard
-// Return timecard with id
+// swagger:route GET /api/v1/agency/bt/{id} BusinessTrips idParamBT
+// Return bt with id
 //
 // Schemes: http, https
 //
@@ -88,10 +88,10 @@ func timecard_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 //   api_key
 //
 // responses:
-// 200: timecardServerResponseWrapper
+// 200: btServerResponseWrapper
 // 404: notFoundWrapper
 // 400: badRequestWrapper
-func AgencyTimecardListHandler(w http.ResponseWriter, r *http.Request) {
+func AgencyBTListHandler(w http.ResponseWriter, r *http.Request) {
 	tID := generateTraceID()
 
 	sessid, err := getBearerToken(tID, r)
@@ -111,9 +111,9 @@ func AgencyTimecardListHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key, exists := vars["key"]
 	if exists {
-		url = config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/agency.cgi?action=AJAX_getTimecardEntry&timecard_id=" + key
+		url = config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/subcontractor.cgi?action=AJAX_getBTEntry&bt_id=" + key
 	} else {
-		url = config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/agency.cgi?action=AJAX_getTimecardList"
+		url = config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/agency.cgi?action=AJAX_getBTList"
 	}
 
 	server_response, err := sendReqToServer(tID, url, sessid)
@@ -135,7 +135,7 @@ func AgencyTimecardListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseToClient, err := timecard_parseServerResponse(tID, server_response)
+	responseToClient, err := bt_parseServerResponse(tID, server_response)
 	if err != nil {
 		if (err.Error() == "user not found") || (err.Error() == "You are not authorized") {
 			w.WriteHeader(http.StatusUnauthorized)

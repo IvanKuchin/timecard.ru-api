@@ -106,6 +106,12 @@ type timecard struct {
 	//
 	// required: true
 	Lines []timecard_line
+	// Timestamp when expense was submitted to the system
+	// If status is "saved" then it is 0
+	// in: body
+	//
+	// required: true
+	Submit_date string
 }
 
 // Returns list of SoW (Statement of Works)
