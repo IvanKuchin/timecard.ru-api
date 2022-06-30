@@ -40,6 +40,7 @@ func Run() {
 	r.HandleFunc("/api/v1/agency/timecard/{key}", apihandlers.AgencyTimecardListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/api/v1/agency/bt/", apihandlers.AgencyBTListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/api/v1/agency/bt/{key}", apihandlers.AgencyBTListHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/v1/agency/subcontractor_by_sow/{key}", apihandlers.AgencySubcBySowListHandler).Methods(http.MethodGet)
 	r.HandleFunc("/", apihandlers.DefaultHandler)
 
 	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
