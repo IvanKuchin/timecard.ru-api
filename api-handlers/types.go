@@ -40,7 +40,7 @@ type bearerToken struct {
 	token string
 }
 
-// swagger:parameters idParamSoW idParamTimecard idParamBT
+// swagger:parameters idParamSoW idParamTimecard idParamBT idParamSubcBySow
 type idParam struct {
 	// The action id to be used in query
 	// in: path
