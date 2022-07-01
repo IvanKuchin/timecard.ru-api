@@ -560,6 +560,58 @@ type psow struct {
 	// required: true
 	// min: 1
 	Id string
+	// Business trip markup
+	// in: body
+	//
+	// required: true
+	Bt_markup string
+	// Business trip markup type
+	//   percent - percent from the whole trip
+	//   fix - fixed amount
+	// in: body
+	//
+	// required: true
+	Bt_markup_type string
+	// Occupation in the contract
+	// in: body
+	//
+	// required: true
+	Company_positions []company_position
+	// Reference to SoW bound to current PSoW
+	// in: body
+	//
+	// required: true
+	Contract_sow_id string
+	// Day rate toward cost center (usually subcontractors day rate + markup)
+	// in: body
+	//
+	// required: true
+	Day_rate string
+	// Contract signing date (YYYY-MM-DD)
+	// in: body
+	//
+	// required: true
+	Sign_date string
+	// Contract start date (YYYY-MM-DD)
+	// in: body
+	//
+	// required: true
+	Start_date string
+	// Contract expiraton date (YYYY-MM-DD)
+	// in: body
+	//
+	// required: true
+	End_date string
+	// Contract number
+	// in: body
+	//
+	// required: true
+	Number string
+	// Amount of working hours per day (extra hours will be highlihted as extrahours)
+	// in: body
+	//
+	// required: true
+	Working_hours_per_day string
 }
 
 // Task structure
@@ -673,11 +725,6 @@ type sow struct {
 	//
 	// required: true
 	Day_rate string
-	// Contract expiraton date
-	// in: body
-	//
-	// required: true
-	End_date string
 	// Contract number (as written on paper)
 	// in: body
 	//
@@ -698,16 +745,21 @@ type sow struct {
 	//
 	// required: true
 	Psow []psow
-	// Contract signing date
+	// Contract signing date (YYYY-MM-DD)
 	// in: body
 	//
 	// required: true
 	Sign_date string
-	// Contract start date
+	// Contract start date (YYYY-MM-DD)
 	// in: body
 	//
 	// required: true
 	Start_date string
+	// Contract expiraton date (YYYY-MM-DD)
+	// in: body
+	//
+	// required: true
+	End_date string
 	// Current contract status
 	// in: body
 	//

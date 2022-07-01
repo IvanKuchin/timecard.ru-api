@@ -31,13 +31,12 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gorilla/mux"
 	"github.com/ivankuchin/timecard.ru-api/logs"
 )
 
-func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
+func agency_info_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 
-	var server_response sowServerResponse
+	var server_response agency_infoServerResponse
 	err := json.Unmarshal(sr, &server_response)
 	if err != nil {
 		error_message := "incorrect json format"
@@ -47,7 +46,7 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 		return nil, fmt.Errorf("%s", error_message)
 	}
 
-	if len(server_response.Sow) == 0 {
+	if len(server_response.Agencies) == 0 {
 		logs.Sugar.Debugw(ErrorNotFound.Error(),
 			"traceID", tID,
 		)
@@ -66,8 +65,8 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 	return &serialized, nil
 }
 
-// swagger:route GET /api/v1/agency/sow/ Sow noContentWrapper
-// Return array of StatementOfWorks with subcontractors
+// swagger:route GET /api/v1/agency/cost_centers Company fakeParam1
+// Return list of agency cost centers
 //
 // Schemes: http, https
 //
@@ -75,12 +74,12 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 //   api_key
 //
 // responses:
-// 200: sowServerResponseWrapper
+// 200: agency_infoServerResponseWrapper
 // 404: notFoundWrapper
 // 400: badRequestWrapper
 
-// swagger:route GET /api/v1/agency/sow/{id} Sow idParamSoW
-// Return subcontractor StatementOfWork with id
+// swagger:route GET /api/v1/agency/info Company fakeParam2
+// Return agency information
 //
 // Schemes: http, https
 //
@@ -88,10 +87,10 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 //   api_key
 //
 // responses:
-// 200: sowServerResponseWrapper
+// 200: agency_infoServerResponseWrapper
 // 404: notFoundWrapper
 // 400: badRequestWrapper
-func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
+func AgencyInfoHandler(w http.ResponseWriter, r *http.Request) {
 	tID := generateTraceID()
 
 	sessid, err := getBearerToken(tID, r)
@@ -106,13 +105,7 @@ func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/agency.cgi?action=AJAX_getSoWList&include_bt=true&include_tasks=true"
-
-	vars := mux.Vars(r)
-	key, exists := vars["key"]
-	if exists {
-		url += "&sow_id=" + key
-	}
+	url := config.Serverproto + "://" + config.Serverhost + ":" + strconv.Itoa(config.Serverport) + "/cgi-bin/agency.cgi?action=AJAX_getAgencyInfo&include_bt=true&include_tasks=true&include_countries=true"
 
 	server_response, err := sendReqToServer(tID, url, sessid)
 	if err != nil {
@@ -133,7 +126,7 @@ func AgencySowListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseToClient, err := sow_parseServerResponse(tID, server_response)
+	responseToClient, err := agency_info_parseServerResponse(tID, server_response)
 	if err != nil {
 		if (err.Error() == "user not found") || (err.Error() == "You are not authorized") {
 			w.WriteHeader(http.StatusUnauthorized)
