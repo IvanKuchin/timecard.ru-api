@@ -66,7 +66,7 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 	return &serialized, nil
 }
 
-// swagger:route GET /api/v1/agency/sow/ Sow noContentWrapper
+// swagger:route GET /api/v1/agency/sow/ SoW noContentWrapper
 // Return array of StatementOfWorks with subcontractors
 //
 // Schemes: http, https
@@ -79,7 +79,7 @@ func sow_parseServerResponse(tID string, sr []byte) (*[]byte, error) {
 // 404: notFoundWrapper
 // 400: badRequestWrapper
 
-// swagger:route GET /api/v1/agency/sow/{id} Sow idParamSoW
+// swagger:route GET /api/v1/agency/sow/{id} SoW idParamSoW
 // Return subcontractor StatementOfWork with id
 //
 // Schemes: http, https

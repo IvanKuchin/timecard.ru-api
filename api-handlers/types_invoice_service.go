@@ -17,8 +17,8 @@ package apihandlers
 
 // Service invoice structure
 //
-// swagger:model service_invoice
-type service_invoice struct {
+// swagger:model invoice
+type invoice struct {
 	// ID
 	// in: body
 	//
@@ -59,7 +59,7 @@ type invoice_serviceServerResponse struct {
 	Result string
 	// Service invoices
 	// in: body
-	Service_invoices []service_invoice
+	Service_invoices []invoice
 }
 
 // Returns list of invoces

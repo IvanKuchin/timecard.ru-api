@@ -45,6 +45,8 @@ func Run() {
 	r.HandleFunc("/api/v1/agency/cost_centers", apihandlers.AgencyInfoHandler).Methods(http.MethodGet)
 	r.HandleFunc("/api/v1/agency/invoices/service/cost_center/{key}", apihandlers.InvoiceServiceHandler).Methods(http.MethodGet)
 	r.HandleFunc("/api/v1/agency/invoices/service/{key}", apihandlers.InvoiceServiceDetailHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/v1/agency/invoices/bt/cost_center/{key}", apihandlers.InvoiceBTHandler).Methods(http.MethodGet)
+	r.HandleFunc("/api/v1/agency/invoices/bt/{key}", apihandlers.InvoiceBTDetailHandler).Methods(http.MethodGet)
 	r.HandleFunc("/", apihandlers.DefaultHandler)
 
 	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
