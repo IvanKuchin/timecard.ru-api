@@ -103,7 +103,7 @@ jobs:
 
       - name: Generate swagger file
         run: |
-          docker run -it --rm -v ${PWD}:/sss -w /sss quay.io/goswagger/swagger generate spec --scan-models -w /sss -o swagger.yaml
+          docker run --rm -v ${PWD}:/sss -w /sss quay.io/goswagger/swagger generate spec --scan-models -w /sss -o swagger.yaml
           ls -la
 
       ###########################################
