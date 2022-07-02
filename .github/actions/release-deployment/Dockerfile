@@ -9,7 +9,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o api_server
 
 
 
-FROM scratch as alpine
+FROM alpine as app
 
 LABEL maintainer="ivan.kuchin@gmail.com"
 LABEL org.opencontainers.image.source="https://github.com/IvanKuchin/${BUILD_REPO}"
