@@ -101,10 +101,12 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      ###########################################
+      # Generate swagger file                   #
+      ###########################################
       - name: Generate swagger file
         run: |
           docker run --rm -v ${PWD}:/sss -w /sss quay.io/goswagger/swagger generate spec --scan-models -w /sss -o swagger.yaml
-          ls -la
 
       ###########################################
       # Build and Push containers to registries #
