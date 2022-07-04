@@ -63,9 +63,9 @@ func Run() {
 
 	srv := &http.Server{
 		Addr:         "0.0.0.0:" + strconv.Itoa(cfg.Listenport),
-		WriteTimeout: time.Second * 5,
-		ReadTimeout:  time.Second * 5,
-		IdleTimeout:  time.Second * 5,
+		WriteTimeout: time.Second * 15,
+		ReadTimeout:  time.Second * 15,
+		IdleTimeout:  time.Second * 15,
 		Handler:      r,
 	}
 
