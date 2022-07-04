@@ -21,6 +21,10 @@ func SetConfig(c configreader.Config) {
 	cfg = c
 }
 
+func serveSwaggerFile(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "swagger.yaml")
+}
+
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logs.Sugar.Debugw("HTTP request: " + r.RequestURI)
@@ -49,10 +53,13 @@ func Run() {
 	r.HandleFunc("/api/v1/agency/invoices/bt/{key}", apihandlers.InvoiceBTDetailHandler).Methods(http.MethodGet)
 	r.HandleFunc("/", apihandlers.DefaultHandler)
 
-	opts := middleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
+	r.HandleFunc("/api/v1/swagger.yaml", serveSwaggerFile)
+	opts := middleware.SwaggerUIOpts{
+		BasePath: "/api/v1/",
+		SpecURL:  "swagger.yaml",
+	}
 	sh := middleware.SwaggerUI(opts, nil)
-	r.Handle("/docs", sh)
-	r.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	r.Handle("/api/v1/docs", sh)
 
 	srv := &http.Server{
 		Addr:         "0.0.0.0:" + strconv.Itoa(cfg.Listenport),
