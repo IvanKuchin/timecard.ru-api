@@ -82,7 +82,7 @@ func sendReqToServer(tID, url, sessid string) ([]byte, error) {
 	// 	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	// }
 	c := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 15 * time.Second,
 		// Transport: tr,
 	}
 
