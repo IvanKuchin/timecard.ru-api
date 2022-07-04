@@ -2,7 +2,7 @@
 //
 // Documentation for REST API
 //
-//  Schemes: http
+//  Schemes: http, https
 //  BasePath: /
 //  Version: 1.0.7
 //
