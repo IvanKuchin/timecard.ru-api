@@ -14,9 +14,12 @@ FROM alpine as app
 LABEL maintainer="ivan.kuchin@gmail.com"
 LABEL org.opencontainers.image.source="https://github.com/IvanKuchin/${BUILD_REPO}"
 
+WORKDIR /workdir
+
 COPY --from=build /src/api_server .
 COPY --from=build /src/config ./config
+COPY swagger.yaml .
 
 EXPOSE 80
 
-CMD ["/api_server"]
+CMD ["./api_server"]
